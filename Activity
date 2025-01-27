@@ -1,0 +1,129 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class IntegratedApp {
+    public static void main(String[] args) {
+        new MainMenu().setVisible(true);
+    }
+}
+
+class MainMenu extends JFrame {
+    public MainMenu() {
+        setTitle("Integrated Application");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(3, 1));
+
+        JButton calculatorButton = new JButton("Calculator");
+        JButton phonebookButton = new JButton("Phonebook System");
+        JButton payrollButton = new JButton("Payroll System");
+
+        calculatorButton.addActionListener(e -> new CalculatorMenu().setVisible(true));
+        phonebookButton.addActionListener(e -> new PhonebookSystem().setVisible(true));
+        payrollButton.addActionListener(e -> new PayrollSystem().setVisible(true));
+
+        add(calculatorButton);
+        add(phonebookButton);
+        add(payrollButton);
+    }
+}
+
+class CalculatorMenu extends JFrame {
+    private JTextArea historyArea;
+    private ArrayList<String> history;
+
+    public CalculatorMenu() {
+        setTitle("Calculator");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        history = new ArrayList<>();
+        JPanel menuPanel = new JPanel(new GridLayout(3, 1));
+
+        JButton computeButton = new JButton("Compute");
+        JButton viewHistoryButton = new JButton("View History");
+        JButton exitButton = new JButton("Exit");
+
+        computeButton.addActionListener(e -> showComputeDialog());
+        viewHistoryButton.addActionListener(e -> showHistory());
+        exitButton.addActionListener(e -> dispose());
+
+        menuPanel.add(computeButton);
+        menuPanel.add(viewHistoryButton);
+        menuPanel.add(exitButton);
+        add(menuPanel, BorderLayout.CENTER);
+    }
+
+    private void showComputeDialog() {
+        JTextField firstNumberField = new JTextField();
+        JTextField secondNumberField = new JTextField();
+        JComboBox<String> operationBox = new JComboBox<>(new String[]{"Add", "Subtract", "Multiply", "Divide"});
+
+        JPanel panel = new JPanel(new GridLayout(3, 2));
+        panel.add(new JLabel("First Number:"));
+        panel.add(firstNumberField);
+        panel.add(new JLabel("Second Number:"));
+        panel.add(secondNumberField);
+        panel.add(new JLabel("Operation:"));
+        panel.add(operationBox);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Compute", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                double num1 = Double.parseDouble(firstNumberField.getText());
+                double num2 = Double.parseDouble(secondNumberField.getText());
+                String operation = (String) operationBox.getSelectedItem();
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("payroll.txt", true))) {
+                    String id = idField.getText().trim();
+                    String name = nameField.getText().trim();
+                    String hourlyRate = hourlyRateField.getText().trim();
+                    String hoursWorked = hoursWorkedField.getText().trim();
+
+                    if (!id.isEmpty() && !name.isEmpty() && !hourlyRate.isEmpty() && !hoursWorked.isEmpty()) {
+                        double grossPay = Double.parseDouble(hourlyRate) * Double.parseDouble(hoursWorked);
+                        double netPay = grossPay - (grossPay * 0.2);
+
+                        writer.write("ID: " + id + ", Name: " + name + ", Gross Pay: " + grossPay + ", Net Pay: " + netPay);
+                        writer.newLine();
+                        outputArea.setText("Record saved.");
+                    } else {
+                        outputArea.setText("Please fill in all fields before saving.");
+                    }
+                } catch (IOException | NumberFormatException ex) {
+                    outputArea.setText("Error saving record.");
+                }
+            }
+        });
+
+        displayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try (BufferedReader reader = new BufferedReader(new FileReader("payroll.txt"))) {
+                    StringBuilder records = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        records.append(line).append("\n");
+                    }
+                    outputArea.setText(records.toString());
+                } catch (IOException ex) {
+                    outputArea.setText("Error reading records.");
+                }
+            }
+        });
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+}
